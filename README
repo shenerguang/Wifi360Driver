@@ -1,0 +1,43 @@
+
+Description:
+============
+This is the driver for 360Wifi2
+
+Chip Version: RT2870STA
+
+We talk about how to use it in zybo.
+
+Configuration in Devicetree:
+============================
+Add coherent_pool value in boot arguments,
+prevent ERROR "256 KiB atomic DMA coherent pool is too small!"
+ 15     chosen {
+ 16         bootargs = "console=ttyPS0,115200 root=/dev/mmcblk0p2 rw earlyprintk     rootfstype=ext4 rootwait devtmpfs.mount=1 coherent_pool=1M";
+ 17         linux,stdout-path = "/amba@0/serial@e0001000";
+ 18     };
+
+Cross Compile:
+==============
+1.Modify Makefile:
+198 ifeq ($(PLATFORM),PC)
+199 # Linux 2.6
+200 #LINUX_SRC = /lib/modules/$(shell uname -r)/build
+201 LINUX_SRC = /root/zybo_gpio/linux-digilent
+202 # Linux 2.4 Change to your local setting
+203 #LINUX_SRC = /usr/src/linux-2.4
+204 #LINUX_SRC_MODULE = /lib/modules/$(shell uname -r)/kernel/drivers/net/wirele    ss/
+205 CROSS_COMPILE = arm-xilinx-linux-gnueabi-
+206 endif
+
+2.make ARCH=arm
+cp os/linux/mt7601Usta.ko /zybo_sd_card
+
+Install:
+========
+mkdir /etc/Wireless
+mkdir /etc/Wireless/RT2870STA
+copy these file to this folder:
+README_STA_usb  RT2870STA.dat  RT2870STACard.dat  mt7601Usta.ko
+
+insmod mt7601Usta.ko
+ifconfig ra0 up
